@@ -1,3 +1,4 @@
-## HelloFlask!
-
-This is an example project demonstrating how to deploy a Flask app to Fly.io.
+## How to run server locally
+ - flask run
+## How to deply server
+ - fly deploy
