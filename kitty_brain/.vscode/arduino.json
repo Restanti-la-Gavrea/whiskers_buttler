@@ -1,0 +1,6 @@
+{
+    "board": "arduino:avr:uno",
+    "programmer": "arduinoisp",
+    "port": "COM4",
+    "sketch": "kitty_brain.ino"
+}
