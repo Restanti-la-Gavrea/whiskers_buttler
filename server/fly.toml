@@ -12,18 +12,24 @@ primary_region = "otp"
 [env]
   PORT = "8080"
 
-# [[services]]
-#   internal_port = 8080
-#   protocol = "tcp"
-#   auto_stop_machines = true
-#   auto_start_machines = true
-#   min_machines_running = 0
-[http_service]
+[[services]]
   internal_port = 8080
-  force_https = true
+  protocol = "tcp"
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
+  [[services.ports]]
+      handlers = ["http"]
+      port = 80
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = "443"
+# [http_service]
+#   internal_port = 8080
+#   force_https = true
+#   auto_stop_machines = true
+#   auto_start_machines = true
+#   min_machines_running = 0
 
 [[vm]]
   cpu_kind = "shared"
