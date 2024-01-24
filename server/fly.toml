@@ -12,9 +12,15 @@ primary_region = "otp"
 [env]
   PORT = "8080"
 
-[[services]]
+# [[services]]
+#   internal_port = 8080
+#   protocol = "tcp"
+#   auto_stop_machines = true
+#   auto_start_machines = true
+#   min_machines_running = 0
+[http_service]
   internal_port = 8080
-  protocol = "tcp"
+  force_https = true
   auto_stop_machines = true
   auto_start_machines = true
   min_machines_running = 0
