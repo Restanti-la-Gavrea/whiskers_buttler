@@ -2,13 +2,13 @@ from flask import Flask, render_template,request,jsonify
 from flask_sock import Sock
 
 app = Flask(__name__)
-# sock = Sock(app)
+sock = Sock(app)
 
-# @sock.route('/echo')
-# def echo(ws):
-#     while True:
-#         data = ws.receive()
-#         ws.send(data[::-1])
+@sock.route('/echo')
+def echo(ws):
+    while True:
+        data = ws.receive()
+        ws.send(data[::-1])
 
 @app.route("/get_my_ip", methods=["GET"])
 def get_my_ip():
