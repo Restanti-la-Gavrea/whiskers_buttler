@@ -1,3 +1,43 @@
-h1 {
-    color: rgb(255, 255, 0);
+:root {
+    --joystick-with: 700px;
+    --joystick-height: 500px;
+    --button-size: 40px;
+    --button-border-radius: 5px;
+  }
+
+body, html {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
+.joystick {
+    position: relative;
+    width: var(--joystick-with); /* Adjust based on your preference */
+    height: var(--joystick-height); /* Adjust based on your preference */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: green;
+}
+
+.button {
+    width: var(--button-size);
+    height: var(--button-size);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius:var(--button-border-radius);
+    cursor: pointer;
+  }
+  .forward  { bottom: calc(var(--button-size)*2 + 10px); left: 50%; transform: translate(-50%, -50%);}
+  .backward { bottom: 0px;                               left: 50%; transform: translate(-50%, -50%);}
+  .left     { bottom: calc(var(--button-size) + 5px); left: calc(50% - var(--button-size) - 5px); transform: translate(-50%, -50%);}
+  .right    { bottom: calc(var(--button-size) + 5px); left: calc(50% + var(--button-size) + 5px); transform: translate(-50%, -50%);}
+  .center   { bottom: calc(var(--button-size) + 5px); left: 50%; transform: translate(-50%, -50%); background-color: #f44336; }
