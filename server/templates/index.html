@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Robot Connections</title>
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+</head>
+<body>
+    <h1>Select a Robot to Connect</h1>
+    <select onfocus="resetRobotListOptions()" id="selectRobot">
+    </select>
+    <button onclick="connectToSelectedRobot()" id="connectBtn">Connect to Selected Robot</button>
+</body>
+</html>

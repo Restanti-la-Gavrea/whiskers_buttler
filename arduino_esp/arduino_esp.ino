@@ -29,7 +29,11 @@
 const char* ssid = "Faster-Faster"; //Enter SSID
 const char* password = "voidmain()"; //Enter Password
 
-const char* websockets_connection_string = "ws://kitty-keeper.fly.dev/echo"; //Enter server adress
+// const char* ssid = "BRG"; //Enter SSID
+// const char* password = "brgbrgbrg3"; //Enter Password
+
+// const char* websockets_connection_string = "wss://kitty-keeper.fly.dev/robot"; //Enter server adress
+const char* websockets_connection_string = "ws://192.168.1.136:5000/connect/robot"; //Enter server adress
 
 /* NTP Time Servers */
 const char *ntp1 = "time.windows.com";
@@ -131,12 +135,13 @@ void onMessageCallback(WebsocketsMessage message) {
     Serial.print("Got Message: ");
     Serial.println(message.data());
 }
-
+WebsocketsClient client;
 void onEventsCallback(WebsocketsEvent event, String data) {
     if(event == WebsocketsEvent::ConnectionOpened) {
         Serial.println("Connnection Opened");
     } else if(event == WebsocketsEvent::ConnectionClosed) {
         Serial.println("Connnection Closed");
+        client.connect(websockets_connection_string);
     } else if(event == WebsocketsEvent::GotPing) {
         Serial.println("Got a Ping!");
     } else if(event == WebsocketsEvent::GotPong) {
@@ -144,7 +149,7 @@ void onEventsCallback(WebsocketsEvent event, String data) {
     }
 }
 
-WebsocketsClient client;
+
 void setup() {
     Serial.begin(115200);
     // Connect to wifi
@@ -188,16 +193,14 @@ void setup() {
     client.connect(websockets_connection_string);
 
     // Send a message
-    client.send("Hello Server");
-
-    // Send a ping
-    client.ping();
+    // client.send("Hello Server");
+    
+    
 }
 
 void loop() {
-    if(client.poll())
-        Serial.println("Message Received");
+    client.send("Hello Server");
     client.ping();
-    delay(1000);
-    
+    client.poll();
+    delay(3000);
 }

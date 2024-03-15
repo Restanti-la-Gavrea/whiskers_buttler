@@ -16,12 +16,21 @@ primary_region = "otp"
   auto_start_machines = true
   min_machines_running = 0
   [[services.ports]]
-      handlers = ["http"]
-      port = 80
+      handlers = ["tls", "http"]
+      start_port = 8080
+      end_port = 8085
   [[services.ports]]
     handlers = ["tls", "http"]
-    port = "443"
+    port = 443
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+  [[services.tcp_checks]]
+    interval = 10000
+    timeout = 2000
 [[vm]]
   cpu_kind = "shared"
-  cpus = 1
-  memory_mb = 256
+  size = "shared-cpu-1x"
+  memory_mb = 512
+  cpus = 2
+  
