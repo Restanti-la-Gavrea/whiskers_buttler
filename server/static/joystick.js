@@ -1,12 +1,44 @@
-const url = "ws://127.0.0.1:5000/connect/person";
-// url = "wss://kitty-keeper.fly.dev:5000/person";
-// url = "wss://kitty-keeper.fly.dev/person";
 let robot = null;
-
 const IMG_X = 320; // QVGA 320x240
 const IMG_Y = 240;
-// Get the canvas and set its width and height
 let canvas = null;
+
+class ServerCommunication{
+  constructor(onReceive){
+    this.socketUrl = this.getWebSocketUrl()
+    this.onReceive = onReceive;
+    this.webSocket = null;
+
+  }
+  getWebSocketUrl(){
+    return "";
+  }
+  init = () => {
+    this.webSocket = new WebSocket(this.url);
+    this.webSocket.binaryType = 'arraybuffer';
+    this.webSocket.onopen = (event) => {
+      console.log("WebSocket connection established to : " , event.currentTarget.url);
+      this.webSocket.send(JSON.stringify({"connect-to": window.robotId}));
+    };
+
+    this.webSocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+      // Retry after a delay
+      setTimeout(() => this.init(), 200); 
+    };
+
+    this.webSocket.onmessage = (message) => {
+      return;
+    };
+  }
+  transmit(command, data){
+    if (this.webSocket!= null && this.webSocket.readyState === WebSocket.OPEN) {
+      this.webSocket.send(JSON.stringify({"other": command}));
+    } else {
+      console.error('WebSocket is not open. Cannot send command.');
+    }
+  }
+}
 
 
 class RobotControl {
@@ -27,7 +59,7 @@ class RobotControl {
   }
 
   initWebSocket = ()=>{
-    this.webSocket = new WebSocket(url);
+    this.webSocket = new WebSocket(this.url);
     this.webSocket.binaryType = 'arraybuffer';
 
     this.webSocket.onopen = (event) => {
@@ -42,7 +74,7 @@ class RobotControl {
     };
     
     if(this.onReceive == null)
-      this.webSocket.onmessage = (message) => {
+      this.webSocket.onmessage  = (message) => {
         const blob = new Blob([message.data], { type: 'image/jpeg' });
         const ctx = canvas.getContext('2d');
 
@@ -82,13 +114,13 @@ class RobotControl {
 }
 
 
-function init(){
-  console.log(window.robotId) 
-  canvas = document.getElementById('imageCanvas');
-  canvas.width = IMG_X;
-  canvas.height = IMG_Y;
-  robot = new RobotControl(url);
+function main(){
+  console.log(window.location.href)
+  // canvas = document.getElementById('imageCanvas');
+  // canvas.width = IMG_X;
+  // canvas.height = IMG_Y;
+  // robot = new RobotControl(getWebSocketUrl());
 }
-window.onload = init;
+window.onload = main;
 
   

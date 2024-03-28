@@ -24,5 +24,8 @@ class User:
             return self.__messages.get_nowait()
         except Empty:
             return None
+        
+    def getName(self)->str:
+        return f"User {self.uid}"
     
 

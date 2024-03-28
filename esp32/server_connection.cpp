@@ -1,8 +1,5 @@
 #include "server_connection.h"
 #include <WiFi.h>
-const char* ssid = "Faster-Faster";
-const char* password = "voidmain()";
-const char* websockets_connection_string = "ws://192.168.1.136:5000/connect/robot";
 
 using namespace websockets;
 ServerConnection::ServerConnection()
@@ -13,14 +10,13 @@ ServerConnection::ServerConnection()
 
 bool ServerConnection::connect() {
     if(WiFi.status() != WL_CONNECTED){
-        WiFi.begin(ssid, password);
+        WiFi.begin(this->ssid, this->password);
         delay(10000);
     }
     if(WiFi.status() != WL_CONNECTED)
         return false;
-    if(!this->available()){
-        WebsocketsClient::connect(websockets_connection_string);
-        return false;
+    while(!this->available()){
+        WebsocketsClient::connect(this->websockets_connection_string);
     }
     return true;
 }
@@ -28,11 +24,28 @@ bool ServerConnection::connect() {
 bool ServerConnection::isConnected() {
     return WiFi.status() == WL_CONNECTED && this->available();
 }
+
+bool ServerConnection::sendBinary(const uint8_t command, const char* data, const size_t len){
+    WebsocketsClient::streamBinary();
+    WebsocketsClient::sendBinary((const char*)&command, 1);
+    if(data != NULL)
+        WebsocketsClient::sendBinary(data, len);
+    return WebsocketsClient::end();
+}
+
 bool ServerConnection::sendBinary(const char* data, const size_t len){
-    bool succeded = WebsocketsClient::sendBinary(data, len);
-    if(!succeded)
+    WebsocketsClient::streamBinary();
+    if(data != NULL)
+        WebsocketsClient::sendBinary(data, len);
+    return WebsocketsClient::end();
+}
+
+bool ServerConnection::loop(){
+    if(!this->ping()){
         this->connect();
-    return succeded;
+        return false;
+    }
+    return this->poll();
 }
 
 
@@ -63,3 +76,21 @@ const char ServerConnection::echo_org_ssl_ca_cert[] PROGMEM = \
 "O5b85o3AM/OJ+CktFBQtfvBhcJVd9wvlwPsk+uyOy2HI7mNxKKgsBTt375teA2Tw\n" \
 "UdHkhVNcsAKX1H7GNNLOEADksd86wuoXvg==\n" \
 "-----END CERTIFICATE-----\n";
+
+#ifdef CLUJ_WIFI
+const char ServerConnection::ssid[] PROGMEM = "Faster-Faster";
+const char ServerConnection::password[] PROGMEM = "voidmain()";
+const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.1.136:5000/connect/robot";
+#elif defined(PHONE_WIFI)
+const char ServerConnection::ssid[] PROGMEM = "BRG";
+const char ServerConnection::password[] PROGMEM = "brgbrgbrg3";
+const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.12.41:5000/connect/robot";
+#elif defined(TURCENI_WIFI)
+const char ServerConnection::ssid[] PROGMEM = "DIGI_ea72ea";
+const char ServerConnection::password[] PROGMEM = "5de30098";
+const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.1.4:5000/connect/robot";
+#else
+const char ServerConnection::ssid[] PROGMEM = "BRG-PC";
+const char ServerConnection::password[] PROGMEM = "brgbrgbrg3";
+const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.137.1:5000/connect/robot";
+#endif

@@ -9,6 +9,7 @@ from src.connections.person_connection import PersonConnection
 from src.services.users_manager import UsersManager
 
 app = Flask(__name__)
+app.config['SOCK_SERVER_OPTIONS'] = {'ping_interval': 10}
 sock = Sock(app)
 manager = UsersManager()
 

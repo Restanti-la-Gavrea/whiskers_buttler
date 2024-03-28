@@ -1,0 +1,27 @@
+#line 1 "D:\\Proiecte\\KittyKeeper\\esp32\\.vscode\\settings.json"
+{
+    "files.associations": {
+        "esp_compiler.h": "c",
+        "array": "cpp",
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "list": "cpp",
+        "string": "cpp",
+        "unordered_map": "cpp",
+        "vector": "cpp",
+        "string_view": "cpp",
+        "memory": "cpp",
+        "random": "cpp",
+        "initializer_list": "cpp",
+        "cmath": "cpp",
+        "exception": "cpp",
+        "functional": "cpp",
+        "istream": "cpp",
+        "ostream": "cpp",
+        "numeric": "cpp",
+        "sstream": "cpp",
+        "streambuf": "cpp",
+        "system_error": "cpp",
+        "fstream": "cpp"
+    }
+}
