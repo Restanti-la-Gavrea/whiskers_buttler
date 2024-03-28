@@ -21,7 +21,7 @@ class RobotConnection(Connection):
         self.command_handlers[0x05] = self.handle_receiving_frame
 
     def handle_receiving_frame(self, command:bytes) -> None:
-        print(f"Robot {self.user.uid} transmitted image at {time.time()} {len(command)}")
+        # print(f"Robot {self.user.uid} transmitted image at {time.time()} {len(command)}")
         self.user.send_message_to_linked_user(command)
     
     def loop(self):
