@@ -88,12 +88,12 @@ class UiController{
     console.log("Connecting to Robot...");
   }
   drawImage(image){
-    const blob = new Blob([image.data], { type: 'image/jpeg' });
+    const blob = new Blob([image], { type: 'image/jpeg' });
     const ctx = canvas.getContext('2d');
     createImageBitmap(blob).then((imageBitmap) => {
       // Draw the image onto the canvas as soon as it's available
       ctx.drawImage(imageBitmap, 0, 0, IMG_X, IMG_Y);
-      console.log((Date.now()/ 1000).toFixed(7));
+      // console.log((Date.now()/ 1000).toFixed(7));
     }).catch(error => {
         console.error('Error processing the image', error);
     });
@@ -182,27 +182,25 @@ class ConnectingToRobotState extends ConnectionState{
     let uuid = uuidToUint8Array(window.robotId);
     this.robotController.server.send(0x01,uuid);
   }
-  // onMessage(command, data){
-  //   console.log("Hwllo")
-  //   if(command == 0x01 && data.length == 16){
-  //     changeState(RobotOperationalState)
-  //   }
-  // }
+  onMessage(command, data){
+    if(command == 0x01 && data.length == 16){
+      this.robotController.changeState(RobotOperationalState)
+    }
+  }
 }
 
 class RobotOperationalState extends ConnectionState{
   constructor(robotController) {
     super(robotController);
   }
-  // onMessage(command, data){
-  //   if(command == 0x05){
-  //     console.log("receivedImage");
-  //     this.robotController.uiController.drawImage(data);
-  //   }
-  // }
-  // onUserInput(input){
+  onMessage(command, data){
+    if(command == 0x05){
+      this.robotController.uiController.drawImage(data);
+    }
+  }
+  onUserInput(input){
 
-  // }
+  }
 }
 
 class RobotController{

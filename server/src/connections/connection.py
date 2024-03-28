@@ -113,6 +113,7 @@ class Connection:
         transmitted_uuid = self.bytes_to_uuid(command[1:])
         if transmitted_uuid is not None and self.user is not None:
             self.manager.link_user(self.user.uid,transmitted_uuid)
+            self.transmit_command(command)
         
     def handle_unknown_command(self, command: bytes):
         pass
