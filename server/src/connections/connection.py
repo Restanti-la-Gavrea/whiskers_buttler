@@ -7,6 +7,7 @@ from uuid import UUID
 
 from src.services.users_manager import UsersManager
 from src.model.user import User
+from src.model.command_type import CommandType
 import threading
 
 class Connection:
@@ -15,13 +16,12 @@ class Connection:
         self.manager: UsersManager = manager
         self.user:Optional[User] = None
         self.receiving_commands_thread: Optional[threading.Thread] = None
-        self.command_handlers: Dict[int, Callable[[Optional[bytes]], None]] = {}
+        self.command_handlers: Dict[CommandType, Callable[[Optional[bytes]], None]] = {}
         self.register_command_handlers()
     
     def register_command_handlers(self) -> None:
-        self.command_handlers[0x00] = self.handle_register_or_authenticate
-        self.command_handlers[0x01] = self.handle_linkage_attempt
-        self.default_handler = self.handle_unknown_command
+        self.command_handlers[CommandType.REGISTER] = self.handle_register_or_authenticate
+        self.command_handlers[CommandType.LINK] = self.handle_linkage_attempt
     
     def start_loop_conection(self) -> None:
         try:
@@ -43,7 +43,11 @@ class Connection:
             while self.ws.connected:
                 command = self.ws.receive(timeout = 4)
                 if command:
-                    self.on_receive_command(command)
+                    try:
+                        commandType = CommandType(command[0])
+                        self.command_handlers[commandType](command)
+                    except Exception as e:
+                        self.handle_unknown_command(command)
         except Exception as e:
             pass
         finally:
@@ -59,6 +63,8 @@ class Connection:
     def on_end(self) -> None:
         self.closeConnection()
         if self.user is not None:
+            logOutMessage = CommandType.CONNECTION.toBytes(b'\x00')
+            self.user.send_message_to_linked_user(logOutMessage)
             self.manager.disconnect_user(self.user.uid)
         self.receiving_commands_thread.join()
 
@@ -71,10 +77,6 @@ class Connection:
     def loop(self):
         pass
 
-    def on_receive_command(self,command : bytes)-> None:
-        # print(f"command : {command[0]}")
-        # print(self.command_handlers[command[0]])
-        self.command_handlers[command[0]](command)
 
     @staticmethod
     def bytes_to_uuid(uuid_bytes:bytes)->Optional[UUID]:
@@ -103,20 +105,27 @@ class Connection:
         self.manager.connect_user(self.user.uid)
         
     def handle_register_or_authenticate(self, command: bytes)->None:
-        if self.authentification(command[1:]) == False:
-            self.register()
+        if self.user is None:
+            if self.authentification(command[1:]):
+                loginMessage = CommandType.CONNECTION.toBytes(b'\x01')
+                self.user.send_message_to_linked_user(loginMessage)
+            else:
+                self.register()
         uuid_bytes = self.user.uid.bytes
-        response_command = command[0:1] + uuid_bytes
+        response_command = CommandType.REGISTER.toBytes(uuid_bytes)
         self.transmit_command(response_command)
 
     def handle_linkage_attempt(self, command: bytes)->None:
         transmitted_uuid = self.bytes_to_uuid(command[1:])
         if transmitted_uuid is not None and self.user is not None:
-            self.manager.link_user(self.user.uid,transmitted_uuid)
-            self.transmit_command(command)
+            if self.manager.link_user(self.user.uid,transmitted_uuid):
+                # Transmit succesfull linkage
+                self.transmit_command(command)
+                return
+        self.transmit_command(CommandType.LINK.toBytes())
         
     def handle_unknown_command(self, command: bytes):
-        pass
+        print(f"Unknown command {command[0]}")
 
     def create_user() -> User:
         pass

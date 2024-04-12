@@ -9,13 +9,15 @@ class ContinuousActionButton {
       this.bindButtonEvents();
       this.bindKeyEvents();
     }
+
+    send(){
+      this.actionFunction(this.triggerKey);
+    }
   
     startAction() {
       if (!this.interval) {
-        this.actionFunction();
-        this.interval = setInterval(() => {
-          this.actionFunction();
-        }, 100);
+        this.send();
+        this.interval = setInterval(this.send.bind(this), 100);
       }
     }
   

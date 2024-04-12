@@ -9,14 +9,22 @@ ServerConnection::ServerConnection()
 }
 
 bool ServerConnection::connect() {
+    static long long waitClock;
     if(WiFi.status() != WL_CONNECTED){
-        WiFi.begin(this->ssid, this->password);
-        delay(10000);
-    }
-    if(WiFi.status() != WL_CONNECTED)
+        if(millis() - waitClock > 3000){
+            Serial.println("Try connecting to Wifi");
+            WiFi.begin(this->ssid, this->password);
+            waitClock = millis();
+        }
         return false;
-    while(!this->available()){
-        WebsocketsClient::connect(this->websockets_connection_string);
+    }
+    if(!this->available()){
+        if(millis() - waitClock > 2000){
+            waitClock = millis();
+            Serial.println("Try connecting to server");
+            WebsocketsClient::connect(this->websockets_connection_string);
+        }
+        return false;
     }
     return true;
 }
@@ -42,8 +50,8 @@ bool ServerConnection::sendBinary(const char* data, const size_t len){
 
 bool ServerConnection::loop(){
     if(!this->ping()){
-        this->connect();
-        return false;
+        if(!this->connect())
+            return false;
     }
     return this->poll();
 }
@@ -84,7 +92,7 @@ const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.
 #elif defined(PHONE_WIFI)
 const char ServerConnection::ssid[] PROGMEM = "BRG";
 const char ServerConnection::password[] PROGMEM = "brgbrgbrg3";
-const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.12.41:5000/connect/robot";
+const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.216.41:5000/connect/robot";
 #elif defined(TURCENI_WIFI)
 const char ServerConnection::ssid[] PROGMEM = "DIGI_ea72ea";
 const char ServerConnection::password[] PROGMEM = "5de30098";

@@ -56,6 +56,8 @@ class UsersManager:
             user1.linked_user = user2
             user2.linked_user = user1
             print(f"{user1.getName()} and {user2.getName()} are linked")
+            return True
+        return False
         
     def unlink_user(self, uid:UUID) -> None:
         user = self.get_user(uid)

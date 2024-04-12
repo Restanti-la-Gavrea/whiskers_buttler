@@ -1,43 +1,94 @@
 :root {
-    --joystick-with: 700px;
-    --joystick-height: 500px;
-    --button-size: 40px;
-    --button-border-radius: 5px;
-  }
-
-body, html {
-    height: 100%;
-    width: 100%;
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+  --button-size: 40px; /* Adjusting button size for visibility */
+  --button-border-radius: 5px; /* Rounded corners for buttons */
 }
-.joystick {
-    position: relative;
-    width: var(--joystick-with); /* Adjust based on your preference */
-    height: var(--joystick-height); /* Adjust based on your preference */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: green;
+
+body{
+  background-color: lightgrey;
+  padding: 20px;
+}
+
+.main-row{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+.main-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+}
+
+#imageCanvas {
+  margin-bottom: 20px; /* Space between the canvas and the directional pad */
+  color: brown;
+}
+
+#imageText {
+  text-align: center;
+  margin-bottom: 20px; /* Space between the text and the directional pad */
+}
+#imageCanvas {
+  display: block;
+}
+
+
+#directionalPad {
+  margin: 260px 40px 0px 0px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px; /* Spacing between buttons */
 }
 
 .button {
-    width: var(--button-size);
-    height: var(--button-size);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: absolute;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius:var(--button-border-radius);
-    cursor: pointer;
-  }
-  .forward  { bottom: calc(var(--button-size)*2 + 10px); left: 50%; transform: translate(-50%, -50%);}
-  .backward { bottom: 0px;                               left: 50%; transform: translate(-50%, -50%);}
-  .left     { bottom: calc(var(--button-size) + 5px); left: calc(50% - var(--button-size) - 5px); transform: translate(-50%, -50%);}
-  .right    { bottom: calc(var(--button-size) + 5px); left: calc(50% + var(--button-size) + 5px); transform: translate(-50%, -50%);}
-  .center   { bottom: calc(var(--button-size) + 5px); left: 50%; transform: translate(-50%, -50%); background-color: #f44336; }
+  width: var(--button-size);
+  height: var(--button-size);
+  border-radius: var(--button-border-radius);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.directionalButtons {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* Spacing between left, center, and right buttons */
+}
+
+.line-sensors-container {
+  display: flex;
+  width: 320px;
+}
+
+.line-sensor {
+  flex-grow: 1;  /* 320px divided by 5 */
+  height: 8px; /* Arbitrary height, adjust as needed */
+  border: 2px solid black; /* Adds a border to each green div */
+  box-sizing: border-box; 
+  background-color: green;
+}
+
+.enemy-detectors-wrapper {
+  margin-top: 240px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  background-color: aqua;
+  /* align-items: flex-end; */
+}
+
+.enemy-detector {
+  position: absolute;
+  width: 30px; /* Adjust size as needed */
+  height: 30px; /* Adjust size as needed */
+  display: flex;
+  justify-content: center; /* Centers content horizontally */
+  align-items: center; /* Centers content vertically */
+  color: white; /* Adjust text color as needed */
+  border-radius: 50%;
+}

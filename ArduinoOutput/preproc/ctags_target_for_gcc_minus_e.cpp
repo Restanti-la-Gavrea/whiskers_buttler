@@ -3,54 +3,77 @@
 # 3 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
 
 # 5 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
+# 6 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
 
 using namespace websockets;
 ServerConnection serverConnection;
+SpiMasterCommunication spiCommunication;
 
 const uint8_t ROBOT_UUID_SIZE = 16;
 char robot_uuid[ROBOT_UUID_SIZE];
-int lastLoginClock = millis();
+long long lastLoginClock = millis();
+
 bool gotFirstUUID = false;
 bool authentificatedWithUID = false;
+bool transmitVideStreaming = true;
 
 enum Commands{
     COMMAND_REGISTER = 0x00,
+    COMMAND_LINK = 0x01,
+    COMMAND_CONNECTION = 0x02,
+    COMMAND_VIDEO_STREAMING = 0x04,
     COMMAND_FRAME = 0x05,
+    COMMAND_MOTOR_POWER =0x06,
+    COMMAND_DISTANCE_DATA=0x07,
+    COMMAND_RING_EDGE_DATA= 0x08,
 };
 
 
 void try_login(){
     if(gotFirstUUID == false){
         serverConnection.sendBinary((char)COMMAND_REGISTER,
-# 23 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 3 4
+# 33 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 3 4
                                                           __null
-# 23 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+# 33 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
                                                               , 0);
     }else{
         serverConnection.sendBinary((char)COMMAND_REGISTER, robot_uuid, ROBOT_UUID_SIZE);
     }
 }
+
+
 void onMessageCallback(WebsocketsMessage message) {
-    Serial.print("Got Message: ");
-    const char *s = message.c_str();
+    const uint8_t *s = (uint8_t *)message.c_str();
     uint8_t command = s[0];
     switch(command){
         case COMMAND_REGISTER:
             memcpy(robot_uuid, s+1, ROBOT_UUID_SIZE);
             gotFirstUUID = true;
             authentificatedWithUID = true;
+            spiCommunication.addData(COMMAND_CONNECTION, 0x01);
+        break;
+        case COMMAND_LINK:
+        break;
+        case COMMAND_CONNECTION:
+        break;
+        case COMMAND_VIDEO_STREAMING:
+            transmitVideStreaming = (bool) s[1];
+        break;
+        case COMMAND_FRAME:
+        break;
+        case COMMAND_MOTOR_POWER:
+            spiCommunication.addData(s, (uint8_t) 3);
         break;
 
         default:
         break;
     }
-
-
 }
 void onEventsCallback(WebsocketsEvent event, String data) {
     if(event == WebsocketsEvent::ConnectionOpened) {
         Serial.println("Connnection Opened");
     } else if(event == WebsocketsEvent::ConnectionClosed) {
+        spiCommunication.addData(COMMAND_CONNECTION, 0x00);
         authentificatedWithUID = false;
         Serial.println("Connnection Closed");
     } else if(event == WebsocketsEvent::GotPing) {
@@ -104,31 +127,84 @@ void setup() {
     serverConnection.onEvent(onEventsCallback);
     serverConnection.connect();
     initCamera();
+    spiCommunication.init();
+}
+
+long long sterge = millis();
+
+void transmitSensorsData(){
+    uint8_t *p = spiCommunication.getReceivedData();
+    const uint8_t *end = p + spiCommunication.getReceivedDataSize();
+    // for(uint8_t * i = p; i < end; i ++){
+    //     Serial.print(i[0]);
+    //     Serial.print(" ");
+    // }Serial.println();
+
+    while(p < end){
+
+        switch(p[0]){
+            case COMMAND_MOTOR_POWER:
+                serverConnection.sendBinary((const char *)p, 3);
+                p+=3;
+            break;
+            case COMMAND_DISTANCE_DATA:
+                serverConnection.sendBinary((const char *)p, 14);
+                p+=14;
+            break;
+            case COMMAND_RING_EDGE_DATA:
+                serverConnection.sendBinary((const char *)p, 2);
+                p+=2;
+            break;
+            default:
+                p++;
+            break;
+        }
+    }
 }
 
 void loop() {
-    if(!serverConnection.loop() )
-        return;
-    if(!authentificatedWithUID){
-        if(millis()- lastLoginClock > 500 ){
-           try_login();
-           lastLoginClock = millis();
-        }
-        return;
-    }
+    //Eschange information with arduino nano
+    spiCommunication.addData(0x01, 0x02);
+    spiCommunication.communication();
+    uint8_t *p = spiCommunication.getReceivedData();
+    const uint8_t *end = p + spiCommunication.getReceivedDataSize();
+    for(uint8_t * i = p; i < end; i ++){
+        Serial.print(i[0]);
+        Serial.print(" ");
+    }Serial.println();
+    // delay(500);
 
-    camera_fb_t * fb = 
-# 115 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 3 4
-                      __null
-# 115 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
-                          ;
-    fb = esp_camera_fb_get();
-    if(serverConnection.sendBinary(COMMAND_FRAME,(const char *)fb->buf, fb->len)){
-        Serial.print("Transmitted ");
-        Serial.println(fb->len);
-    } else{
-        Serial.println("Not Transmitted");
-    }
-    esp_camera_fb_return(fb);
+    // //Check and restablish internet connection
+    // if(!serverConnection.loop() ){
+    //     return;
+    // }
 
+    // //Authentificating to Server
+    // if(!authentificatedWithUID){
+    //     if(millis()- lastLoginClock > 500 ){
+    //        Serial.println("Try Login...");
+    //        try_login();
+    //        lastLoginClock = millis();
+    //     }
+    //     return;
+    // }
+
+    // //transmit Data getted from sensors
+    // transmitSensorsData();
+
+    // //Transmit Video Freame
+    // if(transmitVideStreaming){
+    //     camera_fb_t * fb = NULL;
+    //     fb = esp_camera_fb_get();
+    //     if(serverConnection.sendBinary(COMMAND_FRAME,(const char *)fb->buf, fb->len)){
+    //         Serial.print("Transmitted ");
+    //         Serial.print(fb->len);
+    //         Serial.print(" : ");
+    //         Serial.println(millis()- sterge);
+    //         sterge = millis();
+    //     } else{
+    //         Serial.println("Not Transmitted");
+    //     }
+    //     esp_camera_fb_return(fb);
+    // }
 }

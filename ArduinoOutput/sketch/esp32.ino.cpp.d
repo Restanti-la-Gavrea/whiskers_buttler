@@ -255,4 +255,5 @@ D:\Proiecte\KittyKeeper\ArduinoOutput\sketch\esp32.ino.cpp.o: \
  C:\Users\BRG\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11/tools/sdk/esp32/include/esp32-camera/driver/include/sensor.h \
  C:\Users\BRG\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11/tools/sdk/esp32/include/esp32-camera/conversions/include/img_converters.h \
  C:\Users\BRG\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11/tools/sdk/esp32/include/esp32-camera/conversions/include/esp_jpg_decode.h \
- D:\Proiecte\KittyKeeper\ArduinoOutput\sketch\camera_pins.h
+ D:\Proiecte\KittyKeeper\ArduinoOutput\sketch\camera_pins.h \
+ D:\Proiecte\KittyKeeper\ArduinoOutput\sketch\spi_master_communication.h
