@@ -1,6 +1,7 @@
 #ifndef SPI_SLAVE_CONNECTION
 #define SPI_SLAVE_CONNECTION
 #include <stdint.h>
+#include <Arduino.h>
 class CommitQueue {
 public:
     CommitQueue() : base(0), size(0), commitedSize(0) {}
@@ -16,11 +17,15 @@ public:
             return; // Queue is full, do nothing.
         }
         buffer[(base + size) % CAPACITY] = number;
+        noInterrupts();
         size++;
+        interrupts();
     }
 
     void commitData() {
+        noInterrupts();
         commitedSize = size;
+        interrupts();
     }
 
     uint8_t get() {
@@ -28,9 +33,11 @@ public:
             return 0; // Indicate an error or empty queue.
         }
         uint8_t x = buffer[base];
+        noInterrupts();
         commitedSize--;
         size--;
         base = (base + 1) % CAPACITY;
+        interrupts();
         return x;
     }
 
@@ -42,6 +49,15 @@ public:
     // Returns the number of empty spaces left in the queue.
     uint8_t getEmptySpace() {
         return CAPACITY - size;
+    }
+    void print(){
+        Serial.print(commitedSize);
+        Serial.print(' ');
+        Serial.println(size);
+        for(int i = 0 ;i < size; i ++){
+            Serial.print(buffer[(base+ i) % CAPACITY]);
+            Serial.print(' ');
+        }Serial.println();
     }
 
 private:
@@ -60,12 +76,15 @@ public:
     void interrupt();
 private:
     CommitQueue txQueue, rxQueue;
-    uint8_t bytes_to_transmit, bytes_to_receive;
+    volatile uint8_t bytes_to_transmit, bytes_to_receive;
     // Define the TransmissionState enum
-    enum TransmissionState {
+    volatile enum TransmissionState {
         IDLE,           // Waiting for command or data
+        NO_BYTES,
         RECEIVING,      // Currently receiving data
     } state; 
+
+    void commit();
 };
 
 

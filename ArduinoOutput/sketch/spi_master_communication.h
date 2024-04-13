@@ -19,6 +19,9 @@ private:
     uint8_t txData[DATA_SIZE];
     uint8_t rxData[DATA_SIZE];
     uint8_t rxSize, txSize;
+
+    unsigned long lastTransfer;
+    uint8_t transfer(uint8_t data);
 };
 
 

@@ -147,10 +147,10 @@ long long sterge = millis();
 void transmitSensorsData(){
     uint8_t *p =  spiCommunication.getReceivedData();
     const uint8_t *end = p + spiCommunication.getReceivedDataSize();
-    // for(uint8_t * i = p; i < end; i ++){
-    //     Serial.print(i[0]);
-    //     Serial.print(" ");
-    // }Serial.println();
+    for(uint8_t * i = p; i < end; i ++){
+        Serial.print(i[0]);
+        Serial.print(" ");
+    }Serial.println();
 
     while(p < end){
 
@@ -176,47 +176,39 @@ void transmitSensorsData(){
 
 void loop() {
     //Eschange information with arduino nano
-    spiCommunication.addData(0x01, 0x02);
     spiCommunication.communication();
-    uint8_t *p =  spiCommunication.getReceivedData();
-    const uint8_t *end = p + spiCommunication.getReceivedDataSize();
-    for(uint8_t * i = p; i < end; i ++){
-        Serial.print(i[0]);
-        Serial.print(" ");
-    }Serial.println();
-    // delay(500);
 
-    // //Check and restablish internet connection
-    // if(!serverConnection.loop() ){
-    //     return;
-    // }
+    //Check and restablish internet connection
+    if(!serverConnection.loop() ){
+        return;
+    }
 
-    // //Authentificating to Server
-    // if(!authentificatedWithUID){
-    //     if(millis()- lastLoginClock > 500 ){
-    //        Serial.println("Try Login...");
-    //        try_login();
-    //        lastLoginClock = millis();
-    //     }
-    //     return;
-    // }
+    //Authentificating to Server
+    if(!authentificatedWithUID){
+        if(millis()- lastLoginClock > 500 ){
+           Serial.println("Try Login...");
+           try_login();
+           lastLoginClock = millis();
+        }
+        return;
+    }
 
-    // //transmit Data getted from sensors
-    // transmitSensorsData();
+    //transmit Data getted from sensors
+    transmitSensorsData();
 
-    // //Transmit Video Freame
-    // if(transmitVideStreaming){
-    //     camera_fb_t * fb = NULL;
-    //     fb = esp_camera_fb_get();
-    //     if(serverConnection.sendBinary(COMMAND_FRAME,(const char *)fb->buf, fb->len)){
-    //         Serial.print("Transmitted ");
-    //         Serial.print(fb->len);
-    //         Serial.print(" : ");
-    //         Serial.println(millis()- sterge);
-    //         sterge = millis();
-    //     } else{
-    //         Serial.println("Not Transmitted");
-    //     }
-    //     esp_camera_fb_return(fb);
-    // }
+    //Transmit Video Freame
+    if(transmitVideStreaming){
+        camera_fb_t * fb = NULL;
+        fb = esp_camera_fb_get();
+        if(serverConnection.sendBinary(COMMAND_FRAME,(const char *)fb->buf, fb->len)){
+            Serial.print("Transmitted ");
+            Serial.print(fb->len);
+            Serial.print(" : ");
+            Serial.println(millis()- sterge);
+            sterge = millis();
+        } else{
+            Serial.println("Not Transmitted");
+        }
+        esp_camera_fb_return(fb);
+    }
 }

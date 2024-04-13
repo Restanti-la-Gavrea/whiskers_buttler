@@ -7,18 +7,21 @@ void setup(){
   spiConnection.init();
   Serial.println("Start:");
 }
-
+unsigned long clock = millis();
 void loop()
 {
     uint8_t v[100], n;
     n = spiConnection.getData(v);
     if(n != 0){
-    //    for(int i = 0 ; i < n ; i ++){
-    //         Serial.print((int)v[i]);
-    //         Serial.print(" ");
-    //     }Serial.println();
+       for(int i = 0 ; i < n ; i ++){
+            Serial.print((int)v[i]);
+            Serial.print(" ");
+        }Serial.println();
+    }
+    if(millis() - clock > 0){
         uint8_t v[] = {9,11,12,13,14,15,16,17,18,19,20,21,22};
         spiConnection.addData((uint8_t)0x07,v,13);
+        clock = millis();
     }
     
 }

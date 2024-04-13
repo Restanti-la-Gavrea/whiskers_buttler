@@ -13,7 +13,6 @@ void SpiSlaveConnection::init(){
     // Initialize SPI pins and SPI control register as before
     pinMode(MISO, OUTPUT);
     pinMode(SS, INPUT_PULLUP);
-    SPDR = 0x00; // Ensure SPDR is clear at start
     SPCR |= _BV(SPE); // Enable SPI
     SPI.attachInterrupt(); // Attach SPI interrupt
 
@@ -24,11 +23,7 @@ void SpiSlaveConnection::addData(const uint8_t command, const uint8_t data[],con
     txQueue.add(command);
     for(uint8_t i = 0 ; i < size ; i++)
         txQueue.add(data[i]);
-    cli();
     txQueue.commitData();
-    if(state == IDLE)
-        bytes_to_transmit = SPDR = txQueue.getNoElements();
-    sei();
 }
 uint8_t SpiSlaveConnection::getData(uint8_t data[]){
     uint8_t n = 0;
@@ -38,38 +33,34 @@ uint8_t SpiSlaveConnection::getData(uint8_t data[]){
     return n;
 }
 
-void SpiSlaveConnection::interrupt(){
-
-    if(state == IDLE){
-        //Store number of bytes to receive
+void SpiSlaveConnection::interrupt() {
+    if(state == IDLE ){
+        if(SPDR == 0xFF){
+            state = NO_BYTES;
+            SPDR = bytes_to_transmit = txQueue.getNoElements();
+            // Serial.println(bytes_to_transmit);
+        }
+    }else if(state == NO_BYTES){
+        //No bytes to transfer state
         bytes_to_receive = SPDR;
-        SPDR = txQueue.get();
-        state = RECEIVING;
-        return;
-    }
-
-    if(state == RECEIVING){
-        //Continue Receiving
-        if(bytes_to_receive > 0){
-            rxQueue.add(SPDR);
-            bytes_to_receive--;
-        }
-
-        //Continue Transmitting
-        if(bytes_to_transmit > 0){
+        if (bytes_to_transmit > 0) {
             SPDR = txQueue.get();
-            bytes_to_transmit--;
-        }else{
-            SPDR = 0;
+            --bytes_to_transmit;
         }
-
-        //Check if the transaction is complete
-        if(bytes_to_receive == 0 && bytes_to_transmit == 0){
-            state = IDLE;
-            bytes_to_transmit = SPDR = txQueue.getNoElements();
+        state = RECEIVING;
+    }else{
+        //Receiving state
+        if (bytes_to_receive > 0) {
+            rxQueue.add(SPDR);
+            --bytes_to_receive;
+        }
+        if (bytes_to_transmit > 0) {
+            SPDR = txQueue.get();
+            --bytes_to_transmit;
+        }
+        if (bytes_to_receive == 0 && bytes_to_transmit == 0) {
             rxQueue.commitData();
+            state = IDLE;
         }
-        
-        return;
     }
 }
