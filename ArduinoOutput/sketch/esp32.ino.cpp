@@ -1,10 +1,11 @@
 #include <Arduino.h>
 #line 1 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 #include "server_connection.h"
+#include "spi_master_communication.h"
 #include "esp_camera.h"
 #define CAMERA_MODEL_AI_THINKER
 #include "camera_pins.h"
-#include "spi_master_communication.h"
+
 
 using namespace websockets;
 ServerConnection serverConnection;
@@ -37,23 +38,23 @@ enum Commands{
 };
 
 
-#line 38 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 39 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void try_login();
-#line 47 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 48 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void onMessageCallback(WebsocketsMessage message);
-#line 80 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 81 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void onEventsCallback(WebsocketsEvent event, String data);
-#line 93 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 94 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void initCamera();
-#line 131 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 132 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void setup();
-#line 147 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 148 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void transmitSensorsData();
-#line 175 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 176 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 uint16_t loopsPerSecond();
-#line 181 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 182 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void loop();
-#line 38 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+#line 39 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 void try_login(){
     if(gotFirstUUID == false){
         serverConnection.sendBinary((char)COMMAND_REGISTER,NULL, 0);

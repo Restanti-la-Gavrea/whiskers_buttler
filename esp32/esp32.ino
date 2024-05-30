@@ -1,8 +1,9 @@
 #include "server_connection.h"
+#include "spi_master_communication.h"
 #include "esp_camera.h"
 #define CAMERA_MODEL_AI_THINKER
 #include "camera_pins.h"
-#include "spi_master_communication.h"
+
 
 using namespace websockets;
 ServerConnection serverConnection;

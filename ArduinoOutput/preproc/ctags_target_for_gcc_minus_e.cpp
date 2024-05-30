@@ -1,9 +1,10 @@
 # 1 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
 # 2 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
 # 3 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
+# 4 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
 
-# 5 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
 # 6 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 2
+
 
 using namespace websockets;
 ServerConnection serverConnection;
@@ -39,9 +40,9 @@ enum Commands{
 void try_login(){
     if(gotFirstUUID == false){
         serverConnection.sendBinary((char)COMMAND_REGISTER,
-# 40 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 3 4
+# 41 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 3 4
                                                           __null
-# 40 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+# 41 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
                                                               , 0);
     }else{
         serverConnection.sendBinary((char)COMMAND_REGISTER, robot_uuid, ROBOT_UUID_SIZE);
@@ -212,9 +213,9 @@ void loop() {
     // Transmit Video Freame
     if(transmitVideStreaming && loopsPerSecond() > 18){
         camera_fb_t * fb = 
-# 209 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 3 4
+# 210 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino" 3 4
                           __null
-# 209 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
+# 210 "D:\\Proiecte\\KittyKeeper\\esp32\\esp32.ino"
                               ;
         fb = esp_camera_fb_get();
         if(serverConnection.sendBinary(COMMAND_FRAME,(const char *)fb->buf, fb->len)){

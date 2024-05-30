@@ -35,11 +35,6 @@
     "Includepath": null
   },
   {
-    "Sourcefile": "D:\\Proiecte\\KittyKeeper\\ArduinoOutput\\sketch\\app_httpd.cpp",
-    "Include": "",
-    "Includepath": null
-  },
-  {
     "Sourcefile": "D:\\Proiecte\\KittyKeeper\\ArduinoOutput\\sketch\\server_connection.cpp",
     "Include": "ESPmDNS.h",
     "Includepath": "C:\\Users\\BRG\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.11\\libraries\\ESPmDNS\\src"
