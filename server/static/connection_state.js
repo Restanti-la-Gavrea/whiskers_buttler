@@ -21,7 +21,7 @@ class ConnectionState {
   onOpenConnection() {
   }
   onLostConnection() {
-    this.robotController.changeState(ConnectingServerState);
+    this.robotController.setState(ConnectingServerState);
   }
   loop() { }
   onMessage(command, data) { }
@@ -33,7 +33,7 @@ class ConnectingServerState extends ConnectionState {
     super(robotController);
   }
   onOpenConnection() {
-    this.robotController.changeState(AuthenticatingState)
+    this.robotController.setState(RegistratopmToServerState)
   }
   start() {
     super.start();
@@ -45,13 +45,13 @@ class ConnectingServerState extends ConnectionState {
   }
 }
 
-class AuthenticatingState extends ConnectionState {
+class RegisteringToServerState extends ConnectionState {
   constructor(robotController) {
     super(robotController);
   }
   start() {
     super.start();
-    this.robotController.uiController.displayTryAuthenticating();
+    this.robotController.uiController.displayTryRegistering();
     this.robotController.startLoop(2500);
 
   }
@@ -60,8 +60,10 @@ class AuthenticatingState extends ConnectionState {
     this.robotController.server.send(CommandType.REGISTER);
   }
   onMessage(command, data) {
+    console.log(command)
+    console.log(data)
     if (command == CommandType.REGISTER) {
-      this.robotController.changeState(ConnectingToRobotState)
+      this.robotController.setState(ConnectingToRobotState)
     }
   }
 }
@@ -77,14 +79,14 @@ class ConnectingToRobotState extends ConnectionState {
   }
   loop() {
     let uuid = Helper.uuidStringToUint8Array(window.robotId);
-    this.robotController.server.send(0x01, uuid);
+    this.robotController.server.send(CommandType.LINK, uuid);
   }
   onMessage(command, data) {
     if (CommandType.LINK) {
       if (data.length == 16) {
-        this.robotController.changeState(RobotOperationalState)
+        this.robotController.setState(RobotOperationalState)
       } else {
-        this.robotController.logOut();
+        this.robotController.disconnect();
       }
     }
   }
@@ -100,12 +102,13 @@ class RobotLostConnectionState extends ConnectionState {
   }
   onMessage(command, data) {
     if (command == CommandType.CONNECTION && data[0] != 0x00) {
-      this.robotController.changeState(RobotOperationalState);
+      this.robotController.setState(RobotOperationalState);
     }
   }
 }
 
 class RobotOperationalState extends ConnectionState {
+  static MAX_TRANSMISSION_TIME = 100;
 
   constructor(robotController) {
     super(robotController);
@@ -119,12 +122,24 @@ class RobotOperationalState extends ConnectionState {
       [CommandType.DISTANCE_DATA]: this.handleDistanceData.bind(this),
       [CommandType.RING_EDGE_DATA]: this.handleRingEdgeData.bind(this),
     };
+    this.lastTransmissionTime = new Date();
+    this.IsReceivingVideoStream = true;
 
   }
   start() {
     super.start();
     this.robotController.uiController.displayFullConnection();
+    this.robotController.startLoop(RobotOperationalState.MAX_TRANSMISSION_TIME);
   }
+  loop() {
+    //it past 300 ms
+    if((new Date()) - this.lastTransmissionTime >= RobotOperationalState.MAX_TRANSMISSION_TIME){
+      this.robotController.server.send(CommandType.MOTOR_POWER, new Int8Array([0,0]));
+      this.lastTransmissionTime = new Date();
+    }
+    
+  }
+
   onMessage(command, data) {
     const handler = this.commandHandlers[command] || this.handleDefault;
     handler(command, data);
@@ -132,17 +147,28 @@ class RobotOperationalState extends ConnectionState {
 
   onUserInput(input) {
     if (input == 'w') {
-      this.robotController.server.send(0x04, new Uint8Array([0x00]))
+      this.lastTransmissionTime = new Date();
+      this.robotController.server.send(CommandType.MOTOR_POWER, new Int8Array([100,100]))
+    }else if (input == 's') {
+      this.lastTransmissionTime = new Date();
+      this.robotController.server.send(CommandType.MOTOR_POWER, new Int8Array([-100,-100]))
+    }else if (input == 'a') {
+      this.lastTransmissionTime = new Date();
+      this.robotController.server.send(CommandType.MOTOR_POWER, new Int8Array([-100,100]))
+    }else if (input == 'd') {
+      this.lastTransmissionTime = new Date();
+      this.robotController.server.send(CommandType.MOTOR_POWER, new Int8Array([100,-100]))
+    }else if (input == 'q') {
+      this.lastTransmissionTime = new Date();
+      this.IsReceivingVideoStream = !this.IsReceivingVideoStream;
+      this.robotController.server.send(CommandType.VIDEO_STREAM, new Uint8Array([this.IsReceivingVideoStream]))
     }
-    if (input == 's') {
-      this.robotController.server.send(0x04, new Uint8Array([0x01]))
-    }
-    console.log(`User Input ${input}`);
+    // console.log(`User Input ${input}`);
   }
 
   handleConnection(command, data) {
     if (data[0] == 0) {
-      this.robotController.changeState(RobotLostConnectionState);
+      this.robotController.setState(RobotLostConnectionState);
     }
   }
 
@@ -153,10 +179,9 @@ class RobotOperationalState extends ConnectionState {
     this.robotController.uiController.displayDistanceData(data);
   }
   handleRingEdgeData(command, data) {
-    
+    let dataBytes = Helper.byteToBitArray(data[0]);
+    this.robotController.uiController.drawRingData(dataBytes);
   }
-
-
   handleDefault(command, data) {
     console.log(`Received unrecognized command ${command} with data:`, data);
   }

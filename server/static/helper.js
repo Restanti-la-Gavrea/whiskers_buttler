@@ -21,4 +21,13 @@ class Helper{
     const baseUrl = httpUrl.replace(/http:\/\//, 'ws://').split('/', 4);
     return `${baseUrl[0]}//${baseUrl[2]}/connect/person`;
   }
+  static byteToBitArray(byte) {
+    let bitArray = [];
+    for (let i = 0; i < 8; i++) {
+        // Extract each bit using a right shift and a bitwise AND
+        let bit = (byte >> i) & 1;
+        bitArray.push(bit);
+    }
+    return bitArray;
+  }
 }

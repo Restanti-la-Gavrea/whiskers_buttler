@@ -21,6 +21,7 @@ private:
     static const char ssid[] PROGMEM; 
     static const char password[] PROGMEM; 
     static const char websockets_connection_string[] PROGMEM;
+    unsigned long waitClockMs;
 
 
     // static void onMessageCallback(WebsocketsMessage message) {

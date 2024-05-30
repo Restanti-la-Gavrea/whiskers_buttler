@@ -246,4 +246,6 @@ D:\Proiecte\KittyKeeper\ArduinoOutput\sketch\server_connection.cpp.o: \
  C:\Users\BRG\OneDrive\Documente\Arduino\libraries\ArduinoWebsockets\src/tiny_websockets/internals/data_frame.hpp \
  C:\Users\BRG\OneDrive\Documente\Arduino\libraries\ArduinoWebsockets\src/tiny_websockets/client.hpp \
  C:\Users\BRG\OneDrive\Documente\Arduino\libraries\ArduinoWebsockets\src/tiny_websockets/internals/websockets_endpoint.hpp \
- C:\Users\BRG\OneDrive\Documente\Arduino\libraries\ArduinoWebsockets\src/tiny_websockets/server.hpp
+ C:\Users\BRG\OneDrive\Documente\Arduino\libraries\ArduinoWebsockets\src/tiny_websockets/server.hpp \
+ C:\Users\BRG\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11\libraries\ESPmDNS\src/ESPmDNS.h \
+ C:\Users\BRG\AppData\Local\Arduino15\packages\esp32\hardware\esp32\2.0.11/tools/sdk/esp32/include/mdns/include/mdns.h

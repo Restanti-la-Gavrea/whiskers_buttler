@@ -11,21 +11,19 @@ import time
 
 
 class RobotConnection(Connection):
-    def __init__(self, ws: Any, manager: UsersManager) -> None:
-        super().__init__(ws, manager)
+    def __init__(self, ws: Any) -> None:
+        super().__init__(ws)
     
     def create_user(self) -> User:
         return Robot()
     
-    def register_command_handlers(self)-> None:
-        super().register_command_handlers()
+    def set_command_handlers(self)-> None:
+        super().set_command_handlers()
         self.command_handlers[CommandType.FRAME] = self.handle_retransmit
-        self.command_handlers[CommandType.MOTOR_POWER] = self.handle_retransmit
         self.command_handlers[CommandType.DISTANCE_DATA] = self.handle_retransmit
         self.command_handlers[CommandType.RING_EDGE_DATA] = self.handle_retransmit
     
     def handle_retransmit(self, command:bytes) -> None:
-        # print(f"Robot {self.user.uid} transmitted image at {time.time()} {len(command)}")
         self.user.send_message_to_linked_user(command)
     
     def loop(self):

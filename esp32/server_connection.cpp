@@ -1,26 +1,28 @@
 #include "server_connection.h"
 #include <WiFi.h>
+#include <ESPmDNS.h>
 
 using namespace websockets;
 ServerConnection::ServerConnection()
   : WebsocketsClient() 
 {
     this->setCACert(this->echo_org_ssl_ca_cert);
+    this->waitClockMs = millis();
 }
 
 bool ServerConnection::connect() {
-    static long long waitClock;
     if(WiFi.status() != WL_CONNECTED){
-        if(millis() - waitClock > 3000){
+        if(millis() - waitClockMs > 3000){
             Serial.println("Try connecting to Wifi");
             WiFi.begin(this->ssid, this->password);
-            waitClock = millis();
+            waitClockMs = millis();
         }
         return false;
     }
+
     if(!this->available()){
-        if(millis() - waitClock > 2000){
-            waitClock = millis();
+        if(waitClockMs > 2000){
+            waitClockMs = millis();
             Serial.println("Try connecting to server");
             WebsocketsClient::connect(this->websockets_connection_string);
         }
@@ -28,6 +30,7 @@ bool ServerConnection::connect() {
     }
     return true;
 }
+
 
 bool ServerConnection::isConnected() {
     return WiFi.status() == WL_CONNECTED && this->available();
@@ -45,7 +48,7 @@ bool ServerConnection::sendBinary(const char* data, const size_t len){
     WebsocketsClient::streamBinary();
     if(data != NULL)
         WebsocketsClient::sendBinary(data, len);
-    return WebsocketsClient::end();
+    return  WebsocketsClient::end();
 }
 
 bool ServerConnection::loop(){
@@ -92,7 +95,7 @@ const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.
 #elif defined(PHONE_WIFI)
 const char ServerConnection::ssid[] PROGMEM = "BRG";
 const char ServerConnection::password[] PROGMEM = "brgbrgbrg3";
-const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.216.41:5000/connect/robot";
+const char ServerConnection::websockets_connection_string[] PROGMEM = "ws://192.168.58.41:5000/connect/robot";
 #elif defined(TURCENI_WIFI)
 const char ServerConnection::ssid[] PROGMEM = "DIGI_ea72ea";
 const char ServerConnection::password[] PROGMEM = "5de30098";

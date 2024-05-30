@@ -17,6 +17,9 @@ void SpiSlaveConnection::init(){
     SPI.attachInterrupt(); // Attach SPI interrupt
 
 }
+void SpiSlaveConnection::addData(const uint8_t command, const uint8_t data){
+    addData(command, &data, 1);
+}
 void SpiSlaveConnection::addData(const uint8_t command, const uint8_t data[],const uint8_t size){
     if(txQueue.getEmptySpace() < size + 1)
         return;

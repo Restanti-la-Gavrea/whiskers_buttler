@@ -41,6 +41,11 @@
   },
   {
     "Sourcefile": "D:\\Proiecte\\KittyKeeper\\ArduinoOutput\\sketch\\server_connection.cpp",
+    "Include": "ESPmDNS.h",
+    "Includepath": "C:\\Users\\BRG\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.11\\libraries\\ESPmDNS\\src"
+  },
+  {
+    "Sourcefile": "D:\\Proiecte\\KittyKeeper\\ArduinoOutput\\sketch\\server_connection.cpp",
     "Include": "",
     "Includepath": null
   },
@@ -146,6 +151,11 @@
   },
   {
     "Sourcefile": "C:\\Users\\BRG\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.11\\libraries\\WiFiClientSecure\\src\\ssl_client.cpp",
+    "Include": "",
+    "Includepath": null
+  },
+  {
+    "Sourcefile": "C:\\Users\\BRG\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\2.0.11\\libraries\\ESPmDNS\\src\\ESPmDNS.cpp",
     "Include": "",
     "Includepath": null
   },

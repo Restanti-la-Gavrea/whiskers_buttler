@@ -3,6 +3,10 @@
 #include <SPI.h>
 #include <algorithm>
 #include <Arduino.h>
+const int8_t SPI_SCK_PIN = 14;
+const int8_t SPI_MISO_PIN = 12;
+const int8_t SPI_MOSI_PIN = 13;
+const int8_t SPI_SS_PIN = 15;
 
 
 SpiMasterCommunication::SpiMasterCommunication(/* args */){};
@@ -10,7 +14,7 @@ SpiMasterCommunication::SpiMasterCommunication(/* args */){};
 void SpiMasterCommunication::init(){
     rxSize = 0;
     txSize = 0;
-    SPI.begin(14, 12,13,15);
+    SPI.begin(SPI_SCK_PIN, SPI_MISO_PIN,SPI_MOSI_PIN,SPI_SS_PIN);
     lastTransfer = micros();
 }
 
@@ -46,6 +50,7 @@ void SpiMasterCommunication::communication() {
     rxSize = transfer(txSize);
     // Transmission of data
     uint8_t maxIterations = std::max(rxSize, txSize);
+    rxSize = min(DATA_SIZE, rxSize);
     for (uint8_t i = 0; i < maxIterations; i++) {
         uint8_t txByte = (i < txSize) ? txData[i] : 0x00;  // Use dummy data if txSize exceeded
         uint8_t rxByte = transfer(txByte);
@@ -54,6 +59,7 @@ void SpiMasterCommunication::communication() {
             rxData[i] = rxByte;  // Store received data if within rxSize
         }
     }
+    
 
     // End SPI transaction
     SPI.endTransaction();

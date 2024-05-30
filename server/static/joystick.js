@@ -12,12 +12,12 @@ class RobotController{
     this.rightButton = new ContinuousActionButton('rightButton','d', this.handleUserInput.bind(this));
     this.frontButton = new ContinuousActionButton('forwardButton','w', this.handleUserInput.bind(this));
     this.backButton  = new ContinuousActionButton('backwardButton','s', this.handleUserInput.bind(this));
+    this.videoStreamCommandButton  = new ContinuousActionButton('','q', this.handleUserInput.bind(this),1000);
 
     this.uiController = new UiController()
-    this.changeState(ConnectingServerState)
   }
 
-  logOut(){
+  disconnect(){
     window.location.href = Helper.getBaseUrl();
   }
 
@@ -29,7 +29,7 @@ class RobotController{
     this.state.onOpenConnection()
   }
 
-  changeState(StateClass){
+  setState(StateClass){
     this.state = new StateClass(this);
     this.state.start();
   }
@@ -57,6 +57,7 @@ class RobotController{
 }
 function main(){
   robot = new RobotController();
+  robot.setState(ConnectingServerState)
 }
 window.onload = main;
 

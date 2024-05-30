@@ -1,51 +1,53 @@
 class ContinuousActionButton {
-    constructor(buttonId, triggerKey, actionFunction) {
-      this.button = document.getElementById(buttonId);
+    constructor(buttonId, triggerKey, actionFunction, intervalTime) {
+      this.buttonElement = document.getElementById(buttonId);
       this.triggerKey = triggerKey;
-      this.actionFunction = actionFunction;
+      this.triggerFunction = actionFunction;
       this.interval = null;
+      this.intervalTime = intervalTime || 50;
   
       // Bind event listeners
-      this.bindButtonEvents();
+      if(this.buttonElement)
+        this.bindButtonEvents();
       this.bindKeyEvents();
     }
 
     send(){
-      this.actionFunction(this.triggerKey);
+      this.triggerFunction(this.triggerKey);
     }
   
-    startAction() {
+    startTriggering() {
       if (!this.interval) {
         this.send();
-        this.interval = setInterval(this.send.bind(this), 100);
+        this.interval = setInterval(this.send.bind(this), this.intervalTime);
       }
     }
   
-    stopAction() {
+    stopTriggering() {
       clearInterval(this.interval);
       this.interval = null;
     }
   
     bindButtonEvents() {
-      this.button.addEventListener('mousedown', () => this.startAction());
-      this.button.addEventListener('mouseup', () => this.stopAction());
-      this.button.addEventListener('mouseleave', () => this.stopAction());
+      this.buttonElement.addEventListener('mousedown', () => this.startTriggering());
+      this.buttonElement.addEventListener('mouseup', () => this.stopTriggering());
+      this.buttonElement.addEventListener('mouseleave', () => this.stopTriggering());
   
       // Optional: For touch devices
-      this.button.addEventListener('touchstart', () => this.startAction());
-      this.button.addEventListener('touchend', () => this.stopAction());
+      this.buttonElement.addEventListener('touchstart', () => this.startTriggering());
+      this.buttonElement.addEventListener('touchend', () => this.stopTriggering());
     }
   
     bindKeyEvents() {
       document.addEventListener('keydown', (event) => {
         if (event.key === this.triggerKey) {
-          this.startAction();
+          this.startTriggering();
         }
       });
   
       document.addEventListener('keyup', (event) => {
         if (event.key === this.triggerKey) {
-          this.stopAction();
+          this.stopTriggering();
         }
       });
     }

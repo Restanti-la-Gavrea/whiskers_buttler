@@ -36,7 +36,7 @@ class ServerCommunication{
       
           // Check if 'command' is a single byte (number) and 'data', if provided, is a byte array
           if (typeof command === 'number' && command >= 0 && command <= 255) {
-            if (data instanceof Uint8Array) {
+            if (data instanceof Uint8Array || data instanceof Int8Array) {
               // If data is provided, create a combined array with both command and data
               combinedData = new Uint8Array(data.length + 1);
               combinedData[0] = command; // Set the command as the first byte
@@ -45,7 +45,7 @@ class ServerCommunication{
               // If no data is provided, create an array with only the command
               combinedData = new Uint8Array([command]);
             } else {
-              console.error('Invalid input. If provided, data must be Uint8Array.');
+              console.error('Invalid input. If provided, data must be Uint8Array or Int8Array.');
               return false;
             }
             

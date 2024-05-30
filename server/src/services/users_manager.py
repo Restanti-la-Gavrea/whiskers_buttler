@@ -4,7 +4,18 @@ from src.model.user import User
 from uuid import UUID
 
 class UsersManager:
-    def __init__(self) -> None:
+    _instance = None  # Class-level attribute that holds the singleton instance
+
+    def __new__(cls):
+        # Check if an instance already exists
+        if cls._instance is None:
+            # If not, create a new instance and store it in the class-level attribute
+            cls._instance = super(UsersManager, cls).__new__(cls)
+            # Initialize the instance only once
+            cls._instance.__init_once()
+        return cls._instance  # Return the instance
+
+    def __init_once(self) -> None:
         self.__users: Dict[UUID, User] = {}
     
     def get_all_users(self)->List[User]:
@@ -23,7 +34,7 @@ class UsersManager:
         user = self.get_user(uid)
         if user :
             print(f"{user.getName()} deleted")
-            linked_user_uid = user.linked_user
+            linked_user_uid = user.linkedUser
             del self.__users[uid]
             self.unlink_user(linked_user_uid)
 
@@ -37,9 +48,9 @@ class UsersManager:
         user = self.get_user(uid)
         print(f"{user.getName()} disconnected")
         if user:
-            if user.linked_user:
-                if not user.linked_user.connected:
-                    self.delete_user(user.linked_user.uid)
+            if user.linkedUser:
+                if not user.linkedUser.connected:
+                    self.delete_user(user.linkedUser.uid)
                     self.delete_user(user.uid)
                 else:
                     user.connected = False
@@ -53,8 +64,8 @@ class UsersManager:
         if user1 and user2:
             self.unlink_user(uid1)
             self.unlink_user(uid2)
-            user1.linked_user = user2
-            user2.linked_user = user1
+            user1.linkedUser = user2
+            user2.linkedUser = user1
             print(f"{user1.getName()} and {user2.getName()} are linked")
             return True
         return False
@@ -62,11 +73,11 @@ class UsersManager:
     def unlink_user(self, uid:UUID) -> None:
         user = self.get_user(uid)
         if user :
-            linked_user = user.linked_user
+            linked_user = user.linkedUser
             if linked_user :
-                user.linked_user = None
+                user.linkedUser = None
                 if linked_user.connected :
-                    linked_user.linked_user = None
+                    linked_user.linkedUser = None
                 else:
                     self.delete_user(linked_user.uid)
                 print(f"{user.getName()} and {linked_user.getName()} are unlinked") 

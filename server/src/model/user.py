@@ -6,7 +6,7 @@ import uuid
 class User:
     def __init__(self) ->None:
         self.uid:UUID = uuid.uuid4()
-        self.linked_user :User = None
+        self.linkedUser :User = None
         self.connected:bool = False
         self.__messages:Queue[bytes] = Queue(maxsize=1)
         
@@ -16,8 +16,8 @@ class User:
         self.__messages.put_nowait(message)
     
     def send_message_to_linked_user(self, message:bytes) -> None:
-        if(self.linked_user):
-            self.linked_user.send_message(message)
+        if(self.linkedUser):
+            self.linkedUser.send_message(message)
 
     def get_next_message(self) -> Optional[bytes]:
         try:

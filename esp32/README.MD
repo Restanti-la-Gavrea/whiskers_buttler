@@ -1,0 +1,1 @@
+https://lastminuteengineers.com/esp32-cam-pinout-reference/
